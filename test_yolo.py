@@ -52,24 +52,12 @@ MAX_DISPLAY_HEIGHT = 720
 def adjust_gamma(image, gamma=1.0):
     invGamma = 1.0 / gamma
     table = np.array([((i / 255.0) ** invGamma) * 255
-                      for i in np.arange(0, 256)]).astype("uint8")
+    for i in np.arange(0, 256)]).astype("uint8")
     return cv2.LUT(image, table)
 
 def enhance_night_image(frame):
-    """
-    Quy trình 3 bước (Pipeline) xử lý ảnh ban đêm:
-    1. Gamma Correction: Giảm cường độ sáng tổng thể để dập lóa.
-    2. Bilateral Filter: Lọc nhiễu và làm dịu quầng sáng (Edge-preserving).
-    3. CLAHE: Tăng tương phản cục bộ trên ảnh đã sạch nhiễu để làm nổi bật viền xe.
-    """
-    # Bước 1: Dập bớt ánh sáng gắt (Gamma = 0.8)
-    frame_gamma = adjust_gamma(frame, gamma=0.8)
-    
-    # Bước 2: Khử nhiễu, làm mịn vùng sáng nhưng giữ lại viền xe
-    # Thông số d=5, sigma=50 được giữ ở mức nhẹ để không làm mất các chi tiết nhỏ
+    frame_gamma = adjust_gamma(frame, gamma=0.7)
     smoothed = cv2.bilateralFilter(frame_gamma, d=5, sigmaColor=50, sigmaSpace=50)
-    
-    # Bước 3: Đẩy mạnh độ tương phản cục bộ để YOLO dễ bám nét
     lab = cv2.cvtColor(smoothed, cv2.COLOR_BGR2LAB)
     lightness, channel_a, channel_b = cv2.split(lab)
     
